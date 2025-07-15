@@ -27,8 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('/')
             ->login()
-            ->title('Kasir BUMDes Baturetno') 
-            ->brandName('Kasir BUMDes Baturetno') 
+            
             ->colors([
                 'primary' => Color::Teal,
             ])
