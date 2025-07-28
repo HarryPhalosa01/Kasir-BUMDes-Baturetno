@@ -15,6 +15,7 @@ use App\Models\TransactionItem;
 use App\Helpers\TransactionHelper;
 use App\Services\DirectPrintService;
 use Filament\Forms\Contracts\HasForms;
+use Illuminate\Support\Facades\DB; // <-- Pastikan DB di-import
 use Filament\Notifications\Notification;
 use Filament\Forms\Concerns\InteractsWithForms;
 
@@ -199,6 +200,17 @@ class Pos extends Component implements HasForms
 
         if ($product) {
 
+            // =====================================================================
+            // PERBAIKAN 1: Pengecekan stok saat pertama kali menambahkan produk
+            // =====================================================================
+            if ($product->stock <= 0) {
+                Notification::make()
+                    ->title('Stok barang ' . $product->name . ' telah habis!')
+                    ->danger()
+                    ->send();
+                return;
+            }
+            
             // Cari apakah item sudah ada di dalam order
             $existingItemKey = array_search($productId, array_column($this->order_items, 'product_id'));
 
@@ -333,26 +345,49 @@ class Pos extends Component implements HasForms
             'name' => 'string|max:255',
             'payment_method_id' => 'required'
         ]);
+        
+        // =====================================================================
+        // PERBAIKAN 2: Validasi Final sebelum menyimpan transaksi
+        // =====================================================================
+        try {
+            DB::beginTransaction();
 
-        $payment_method_id_temp = $this->payment_method_id;
+            $orderItems = session('orderItems');
 
-        if (session('orderItems') === null || count(session('orderItems')) == 0) {
-            Notification::make()
-                ->title('Keranjang kosong')
-                ->danger()
-                ->send();
+            if ($orderItems === null || count($orderItems) == 0) {
+                Notification::make()
+                    ->title('Keranjang kosong')
+                    ->danger()
+                    ->send();
+                $this->showCheckoutModal = false;
+                DB::rollBack();
+                return;
+            }
             
-            $this->showCheckoutModal = false;
-        } else {
+            // Lakukan pengecekan stok untuk setiap item
+            foreach ($orderItems as $item) {
+                $product = Product::find($item['product_id']);
+                if ($product->stock < $item['quantity']) {
+                    Notification::make()
+                        ->title('Stok ' . $product->name . ' tidak mencukupi! Sisa ' . $product->stock)
+                        ->danger()
+                        ->send();
+                    DB::rollBack();
+                    return;
+                }
+            }
+
+            // Jika semua stok aman, lanjutkan proses checkout
             $order = Transaction::create([
-                'payment_method_id' => $payment_method_id_temp,
+                'payment_method_id' => $this->payment_method_id,
                 'transaction_number' => TransactionHelper::generateUniqueTrxId(),
                 'name' => $this->name,
                 'total' => $this->total_price,
                 'cash_received' => $this->cash_received,
                 'change' => $this->change,
             ]);
-            foreach ($this->order_items as $item) {
+
+            foreach ($orderItems as $item) {
                 TransactionItem::create([
                     'transaction_id' => $order->id,
                     'product_id' => $item['product_id'],
@@ -361,7 +396,13 @@ class Pos extends Component implements HasForms
                     'cost_price' => $item['cost_price'],
                     'total_profit' => $item['total_profit'] * $item['quantity'],
                 ]);
+                
+                // Kurangi stok produk setelah item transaksi dibuat
+                Product::find($item['product_id'])->decrement('stock', $item['quantity']);
             }
+            
+            DB::commit(); // Simpan semua perubahan jika tidak ada error
+
             // Simpan ID order untuk cetak
             $this->orderToPrint = $order->id;
 
@@ -374,6 +415,7 @@ class Pos extends Component implements HasForms
                 ->success()
                 ->send();
 
+            // Reset semua state setelah berhasil
             $this->name = 'umum';
             $this->payment_method_id = null;
             $this->total_price = 0;
@@ -382,7 +424,13 @@ class Pos extends Component implements HasForms
             $this->order_items = [];
             session()->forget(['orderItems']);
 
-            
+        } catch (\Exception $e) {
+            DB::rollBack(); // Batalkan semua jika ada error tak terduga
+            Notification::make()
+                ->title('Terjadi kesalahan saat checkout!')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
         }
     }
 

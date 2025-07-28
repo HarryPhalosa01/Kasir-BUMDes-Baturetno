@@ -39,7 +39,7 @@ class PaymentMethodResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationLabel = 'Metode Pembayaran';
 
-    protected static ?string $navigationGroup = 'Menejemen keuangan';
+    protected static ?string $navigationGroup = 'Manajemen Keuangan';
 
     public static function getNavigationBadge(): ?string
     {

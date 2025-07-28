@@ -38,7 +38,7 @@ class CashFlowResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationLabel = 'Alur Kas';
 
-    protected static ?string $navigationGroup = 'Menejemen keuangan';
+    protected static ?string $navigationGroup = 'Manajemen Keuangan';
 
     public static function getNavigationBadge(): ?string
 {

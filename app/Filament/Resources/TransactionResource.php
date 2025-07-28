@@ -52,7 +52,7 @@ class TransactionResource extends Resource implements HasShieldPermissions
 
     protected static ?string $pluralLabel = 'Transaksi';
 
-    protected static ?string $navigationGroup = 'Menejemen keuangan';
+    protected static ?string $navigationGroup = 'Manajemen Keuangan';
 
     protected static ?int $navigationSort = 3;
 

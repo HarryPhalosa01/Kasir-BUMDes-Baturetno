@@ -36,7 +36,7 @@ class ReportResource extends Resource implements HasShieldPermissions
 
     protected static ?int $navigationSort = 6;
 
-    protected static ?string $navigationGroup = 'Menejemen keuangan';
+    protected static ?string $navigationGroup = 'Manajemen Keuangan';
 
     public static function form(Form $form): Form
     {

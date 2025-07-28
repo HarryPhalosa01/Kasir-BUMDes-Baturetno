@@ -14,17 +14,17 @@ class ProductAlert extends BaseWidget
     protected static ?int $sort = 4;
     protected static ?string $heading = 'Status Stok Produk';
 
-  
+
     public function table(Table $table): Table
     {
         return $table
             ->query(
-                Product::query()->where('stock', '<', 10)->orderBy('stock', 'asc')
+                Product::query()->orderBy('stock', 'asc')
             )
             ->columns([
                 Tables\Columns\ImageColumn::make('image')
-                ->label('Gambar')
-                ->circular(),
+                    ->label('Gambar')
+                    ->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Produk')
                     ->searchable(),
@@ -58,7 +58,7 @@ class ProductAlert extends BaseWidget
                         return 'success';
                     })
                     ->sortable(),
-                
+
             ])
             ->defaultPaginationPageOption(5);
     }

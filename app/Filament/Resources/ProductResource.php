@@ -41,7 +41,7 @@ class ProductResource extends Resource implements HasShieldPermissions
 
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $navigationGroup = 'Menejemen Produk';
+    protected static ?string $navigationGroup = 'Manajemen Produk';
 
 
     public static function getNavigationBadge(): ?string
@@ -85,7 +85,7 @@ class ProductResource extends Resource implements HasShieldPermissions
                     ->image(),
                 Forms\Components\TextInput::make('stock')
                     ->label('Stok Produk')
-                    ->helperText('Stok hanya dapat diisi/ditambah pada menejemen inventori')
+                    ->helperText('Stok hanya dapat diisi/ditambah pada manajemen inventori')
                     ->required()
                     ->numeric()
                     ->readOnly()
