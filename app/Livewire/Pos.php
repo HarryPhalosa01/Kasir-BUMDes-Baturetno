@@ -346,9 +346,6 @@ class Pos extends Component implements HasForms
             'payment_method_id' => 'required'
         ]);
         
-        // =====================================================================
-        // PERBAIKAN 2: Validasi Final sebelum menyimpan transaksi
-        // =====================================================================
         try {
             DB::beginTransaction();
 
@@ -397,8 +394,10 @@ class Pos extends Component implements HasForms
                     'total_profit' => $item['total_profit'] * $item['quantity'],
                 ]);
                 
-                // Kurangi stok produk setelah item transaksi dibuat
-                Product::find($item['product_id'])->decrement('stock', $item['quantity']);
+                // ==========================================================
+                // BARIS INI DIHAPUS UNTUK MENGHINDARI PENGURANGAN GANDA
+                // Product::find($item['product_id'])->decrement('stock', $item['quantity']);
+                // ==========================================================
             }
             
             DB::commit(); // Simpan semua perubahan jika tidak ada error
