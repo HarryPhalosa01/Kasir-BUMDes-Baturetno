@@ -80,6 +80,7 @@ class ProductResource extends Resource implements HasShieldPermissions
                     ->prefix('Rp'),
                 Forms\Components\FileUpload::make('image')
                     ->label('Gambar Produk')
+                    ->disk('public') // <-- TAMBAHKAN BARIS INI
                     ->directory('products')
                     ->helperText('jika tidak diisi akan diisi foto default')
                     ->image(),
