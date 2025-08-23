@@ -24,6 +24,10 @@ class ListProducts extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
+            Actions\Action::make('laporan')
+                ->label('Laporan Produk')
+                ->url(ProductResource::getUrl('laporan'))
+                ->icon('heroicon-o-document-arrow-down'),
         ];
     }
 
