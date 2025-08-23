@@ -118,7 +118,9 @@ class ProductResource extends Resource implements HasShieldPermissions
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('image')
                     ->label('Gambar')
+                    ->disk('public')
                     ->circular(),
+                    
                 Tables\Columns\TextColumn::make('stock')
                     ->label('Stok')
                     ->numeric()
