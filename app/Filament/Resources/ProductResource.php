@@ -208,7 +208,8 @@ class ProductResource extends Resource implements HasShieldPermissions
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProducts::route('/'),
+            'index' => \App\Filament\Resources\ProductResource\Pages\ListProducts::route('/'),
+            'laporan' => \App\Filament\Resources\ProductResource\Pages\LaporanProduk::route('/laporan'),
         ];
     }
 
